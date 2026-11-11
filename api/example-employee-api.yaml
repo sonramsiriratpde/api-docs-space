@@ -10,13 +10,13 @@ info:
     flagged with `x-tbc: true` or `TBC` in descriptions.
   x-system-id: IT-006
 servers:
-  - url: 'https://TBC-data-lake-host'
+  - url: https://TBC-data-lake-host
     description: Data Lake (host to be confirmed)
 tags:
   - name: Employees
     description: Employee master data from HR@Core
 paths:
-  /employee:
+  /data-lake:
     get:
       tags:
         - Employees
@@ -35,10 +35,10 @@ paths:
           schema:
             type: string
             example: PEM
-      # TBC: the source table lists "company" as a request body on a GET
-      # and the query string parameters as "To be confirm".
-      # Modeled here as a query parameter because GET bodies are not
-      # supported by OpenAPI 3.0. Other query parameters (e.g. paging) TBC.
+        # TBC: the source table lists "company" as a request body on a GET
+        # and the query string parameters as "To be confirm".
+        # Modeled here as a query parameter because GET bodies are not
+        # supported by OpenAPI 3.0. Other query parameters (e.g. paging) TBC.
       responses:
         '200':
           description: Employee list retrieved successfully
@@ -56,7 +56,7 @@ paths:
                         department: Production
                         position: Operator
                         work_location: Plant 1
-                        salary: 20000
+                        salary: 20000.0
         '400':
           description: |
             Bad request. Response body is not yet defined in the source
@@ -67,11 +67,20 @@ paths:
                 type: object
                 description: Error body structure to be confirmed.
               example: {}
+        '404':
+          description: |
+            Not found. No employee data found for the given company code
+            (TBC). Response body is not yet defined in the source
+            specification.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Error body structure to be confirmed.
+              example: {}
       # TBC: authorization scheme not yet defined.
       # Add components.securitySchemes and a `security` entry once confirmed.
       x-tbc: true
-      x-stoplight:
-        id: djfbepohu9lxr
 components:
   schemas:
     EmployeeListResponse:
@@ -116,4 +125,4 @@ components:
           type: number
           format: double
           description: เงินเดือน (ใช้สำหรับ Payroll)
-          example: 20000
+          example: 20000.0
