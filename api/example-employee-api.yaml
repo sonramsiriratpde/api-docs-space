@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: HR@Core - Retrieve/Get Employees Info
+  version: '1.0'
+  description: |
+    HR@Core (IT-006) เป็นแหล่งข้อมูลบุคลากร โดยมี Data Lake เป็นตัวกลางให้ Odoo
+    ดึงข้อมูลพนักงานและโครงสร้างองค์กรจากแหล่งข้อมูลเดียว (Single Source of Truth)
+
+    **Status:** Draft. Items marked "To be confirmed" in the source API table are
+    flagged with `x-tbc: true` or `TBC` in descriptions.
+  x-system-id: IT-006
+servers:
+  - url: 'https://TBC-data-lake-host'
+    description: Data Lake (host to be confirmed)
+tags:
+  - name: Employees
+    description: Employee master data from HR@Core
+paths:
+  /employee:
+    get:
+      tags:
+        - Employees
+      summary: Retrieve/Get Employees Info
+      operationId: get-employees
+      description: |
+        ดึงข้อมูลพนักงานจาก HR@Core ผ่าน Data Lake ตามรหัสบริษัท
+
+        หมายเหตุ: ข้อมูลที่ส่งกลับมีเงินเดือน (`salary`) ซึ่งเป็นข้อมูลอ่อนไหว
+        ใช้สำหรับ Payroll เท่านั้น ควรกำหนดสิทธิ์การเข้าถึงอย่างเหมาะสม
+      parameters:
+        - name: company
+          in: query
+          required: true
+          description: รหัสบริษัท (Company code)
+          schema:
+            type: string
+            example: PEM
+      # TBC: the source table lists "company" as a request body on a GET
+      # and the query string parameters as "To be confirm".
+      # Modeled here as a query parameter because GET bodies are not
+      # supported by OpenAPI 3.0. Other query parameters (e.g. paging) TBC.
+      responses:
+        '200':
+          description: Employee list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeListResponse'
+              examples:
+                Employees of PEM:
+                  value:
+                    items:
+                      - employee_code: EMP001
+                        employee_name: Dummy Employee
+                        company: PEM
+                        department: Production
+                        position: Operator
+                        work_location: Plant 1
+                        salary: 20000
+        '400':
+          description: |
+            Bad request. Response body is not yet defined in the source
+            specification (TBC).
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Error body structure to be confirmed.
+              example: {}
+      # TBC: authorization scheme not yet defined.
+      # Add components.securitySchemes and a `security` entry once confirmed.
+      x-tbc: true
+      x-stoplight:
+        id: djfbepohu9lxr
+components:
+  schemas:
+    EmployeeListResponse:
+      title: EmployeeListResponse
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Employee'
+    Employee:
+      title: Employee
+      type: object
+      properties:
+        employee_code:
+          type: string
+          description: รหัสพนักงาน
+          example: EMP001
+        employee_name:
+          type: string
+          description: ชื่อพนักงาน
+          example: Dummy Employee
+        company:
+          type: string
+          description: บริษัท
+          example: PEM
+        department:
+          type: string
+          description: หน่วยงาน
+          example: Production
+        position:
+          type: string
+          description: ตำแหน่ง
+          example: Operator
+        work_location:
+          type: string
+          description: สถานที่ทำงาน
+          example: Plant 1
+        salary:
+          type: number
+          format: double
+          description: เงินเดือน (ใช้สำหรับ Payroll)
+          example: 20000
