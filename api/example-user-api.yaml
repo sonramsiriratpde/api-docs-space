@@ -210,3 +210,5 @@ components:
         - emailVerified
       x-stoplight:
         id: lz04bpou97ldt
+tags:
+  - name: user
